@@ -19,9 +19,22 @@ class Tokens(Enum):
         return self.value
 
 
+class Board:
+    def __init__(self, default_token, rows, columns):
+        self.board = [[default_token] * columns] * rows
+
+    def __str__(self):
+        repr_ = []
+        for row in self.board:
+            for token in row:
+                repr_.append(f'{str(token)} ')
+            repr_.append('\n')
+        return ''.join(repr_)
+
+
 class ConnectFour:
     def __init__(self, rows=Constants.ROWS, columns=Constants.COLUMNS):
-        self.board = [[Tokens.WHITE] * Constants.COLUMNS] * Constants.ROWS
+        self.board = Board(Tokens.WHITE, rows, columns)
         self.players = [None] * 2
         self.tokens = [Tokens.RED, Tokens.BLACK]
         self.turn = 0

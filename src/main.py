@@ -35,10 +35,29 @@ class Board:
     def get(self, row, column):
         return self.board[row][column]
 
-    def drop_token(self, column, token):
+    def is_winning_move(self, row, column, token) -> bool:
+        # check horizontal
+        # col from column -3 to column + 3
+        board = self.board
+        for c in range(column - 3, column + 1):
+            if c >= 0 and c + 3 < Constants.COLUMNS \
+                    and board[row][c] == token and board[row][c + 1] == token \
+                    and board[row][c + 2] and board[row][c + 3] == token:
+                return True
+
+        # check vertical
+        for r in range(row - 3, row + 1):
+            if r >= 0 and r + 3 < Constants.ROWS \
+                    and board[r][column] == token and board[r][column + 1] == token \
+                    and board[r][column + 2] and board[r][column + 3] == token:
+                return True
+
+
+    def drop_token(self, column, token) -> bool:
         row = self.top_filled_rows[column]
         self.board[row][column] = token
         self.top_filled_rows[column] -= 1
+        return self.is_winning_move(row, column, token)
 
 
 class ConnectFour:
@@ -59,9 +78,6 @@ class ConnectFour:
 
     def drop_token(self, column, token):
         self.board.drop_token(column, token)
-
-    def is_winning_move(self, column):
-        pass
 
     def start_game(self):
         while not self.game_over:

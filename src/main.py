@@ -1,4 +1,3 @@
-import numpy as np
 from enum import Enum
 
 
@@ -40,16 +39,39 @@ class Board:
         # col from column -3 to column + 3
         board = self.board
         for c in range(column - 3, column + 1):
-            if c >= 0 and c + 3 < Constants.COLUMNS \
-                    and board[row][c] == token and board[row][c + 1] == token \
-                    and board[row][c + 2] and board[row][c + 3] == token:
+            count = sum(0 <= c + d < Constants.COLUMNS and board[row][c + d] == token for d in range(4))
+            if count == 4:
                 return True
 
         # check vertical
         for r in range(row - 3, row + 1):
-            if r >= 0 and r + 3 < Constants.ROWS \
-                    and board[r][column] == token and board[r][column + 1] == token \
-                    and board[r][column + 2] and board[r][column + 3] == token:
+            count = sum(0 <= r + d < Constants.ROWS and board[r + d][column] == token for d in range(4))
+            if count == 4:
+                return True
+
+        # check negative diagonal
+        count = 0
+        for r, c in zip(range(row - 3, row + 1), range(column - 3, column + 1)):
+            for d in range(4):
+                # r - 3, c - 3 | r -2 , c - 2, | r - 1, c - 1 | r, c
+                # r -2 , c - 2, | r - 1, c - 1 | r, c | r + 1, c + 1
+                # r - 1, c - 1 | r, c | r + 1, c + 1 | r + 2, c + 2 ...
+                if 0 <= r + d < Constants.ROWS and 0 <= c + d < Constants.ROWS \
+                        and board[r + d][c + d] == token:
+                    count += 1
+            if count == 4:
+                return True
+
+        # check positive diagonal
+        for r, c in zip(range(row + 3, row - 1, -1), range(column - 3, column + 1)):
+            for d in range(4):
+                # r + 3, c - 3 | r + 2 , c - 2, | r + 1, c - 1 | r, c
+                # r + 2 , c - 2, | r + 1, c - 1 | r, c | r - 1, c + 1
+                # r + 1, c - 1 | r, c | r - 1, c + 1 | r - 2, c + 2 ...
+                if 0 <= r + d < Constants.ROWS and 0 <= c + d < Constants.ROWS \
+                        and board[r - d][c + d] == token:
+                    count += 1
+            if count == 4:
                 return True
 
 

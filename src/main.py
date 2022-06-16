@@ -50,30 +50,31 @@ class Board:
                 return True
 
         # check negative diagonal
-        count = 0
         for r, c in zip(range(row - 3, row + 1), range(column - 3, column + 1)):
             for d in range(4):
+                count = 0
                 # r - 3, c - 3 | r -2 , c - 2, | r - 1, c - 1 | r, c
                 # r -2 , c - 2, | r - 1, c - 1 | r, c | r + 1, c + 1
                 # r - 1, c - 1 | r, c | r + 1, c + 1 | r + 2, c + 2 ...
                 if 0 <= r + d < Constants.ROWS and 0 <= c + d < Constants.ROWS \
                         and board[r + d][c + d] == token:
                     count += 1
-            if count == 4:
-                return True
+                if count == 4:
+                    return True
 
         # check positive diagonal
         for r, c in zip(range(row + 3, row - 1, -1), range(column - 3, column + 1)):
             for d in range(4):
+                count = 0
                 # r + 3, c - 3 | r + 2 , c - 2, | r + 1, c - 1 | r, c
                 # r + 2 , c - 2, | r + 1, c - 1 | r, c | r - 1, c + 1
                 # r + 1, c - 1 | r, c | r - 1, c + 1 | r - 2, c + 2 ...
                 if 0 <= r + d < Constants.ROWS and 0 <= c + d < Constants.ROWS \
                         and board[r - d][c + d] == token:
                     count += 1
-            if count == 4:
-                return True
-
+                if count == 4:
+                    return True
+        return False
 
     def drop_token(self, column, token) -> bool:
         row = self.top_filled_rows[column]
@@ -99,7 +100,7 @@ class ConnectFour:
         return is_on_board and is_valid_column
 
     def drop_token(self, column, token):
-        self.board.drop_token(column, token)
+        return self.board.drop_token(column, token)
 
     def start_game(self):
         while not self.game_over:
@@ -108,7 +109,7 @@ class ConnectFour:
             if column == -1:
                 break
             if self.is_valid_choice(column):
-                self.drop_token(column, self.tokens[self.turn])
+                print(self.drop_token(column, self.tokens[self.turn]))
             self.turn = (self.turn + 1) % 2
 
 

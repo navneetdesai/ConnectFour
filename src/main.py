@@ -21,15 +21,24 @@ class Tokens(Enum):
 
 class Board:
     def __init__(self, default_token, rows, columns):
-        self.board = [[default_token] * columns] * rows
+        self.board = [[default_token for _ in range(columns)] for _ in range(rows)]
+        self.top_filled_rows = [rows - 1 for _ in range(columns)]
 
     def __str__(self):
+        # To-do: store and replace instead of creating every time?
         repr_ = []
         for row in self.board:
-            for token in row:
-                repr_.append(f'{str(token)} ')
+            repr_.extend(f'{str(token)} ' for token in row)
             repr_.append('\n')
         return ''.join(repr_)
+
+    def get(self, row, column):
+        return self.board[row][column]
+
+    def drop_token(self, column, token):
+        row = self.top_filled_rows[column]
+        self.board[row][column] = token
+        self.top_filled_rows[column] -= 1
 
 
 class ConnectFour:
@@ -38,7 +47,6 @@ class ConnectFour:
         self.players = [None] * 2
         self.tokens = [Tokens.RED, Tokens.BLACK]
         self.turn = 0
-        self.top_filled_rows = [Constants.ROWS - 1] * Constants.COLUMNS
         self.game_over = False
 
     def add_players(self, player_one, player_two):
@@ -46,13 +54,14 @@ class ConnectFour:
 
     def is_valid_choice(self, column):
         is_on_board = 1 <= column <= 7
-        is_valid_column = not self.board[0][column]
+        is_valid_column = self.board.get(0, column) == Tokens.WHITE
         return is_on_board and is_valid_column
 
-    def drop_token(self, column, piece):
-        row = self.top_filled_rows[column]
-        print(row)
-        self.board[row][column] = piece
+    def drop_token(self, column, token):
+        self.board.drop_token(column, token)
+
+    def is_winning_move(self, column):
+        pass
 
     def start_game(self):
         while not self.game_over:
@@ -61,7 +70,6 @@ class ConnectFour:
             if column == -1:
                 break
             if self.is_valid_choice(column):
-                print('here')
                 self.drop_token(column, self.tokens[self.turn])
             self.turn = (self.turn + 1) % 2
 

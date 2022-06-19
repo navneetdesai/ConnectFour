@@ -1,9 +1,17 @@
+import math
+import sys
 from enum import Enum
+import pygame
 
 
 class Constants:
     ROWS = 6
     COLUMNS = 7
+    SIZE = 150
+    BLUE = 0, 0, 255
+    BLACK = 0, 0, 0
+    RED = 255, 0, 0
+    RADIUS = 45
 
 
 class Tokens(Enum):
@@ -103,19 +111,63 @@ class ConnectFour:
         return self.board.drop_token(column, token)
 
     def start_game(self):
+        player_one = input('Who\'s player one? - ')
+        player_two = input('Who\'s player two?- ')
+        self.add_players(player_one, player_two)
         while not self.game_over:
             print(self.board)
             column = int(input(f'{self.players[self.turn]}\'s turn (1 - 7): '))
             if column == -1:
                 break
-            if self.is_valid_choice(column):
-                print(self.drop_token(column, self.tokens[self.turn]))
+            if self.is_valid_choice(column) and self.drop_token(column, self.tokens[self.turn]):
+                print(f'Congratulation! {self.players[self.turn]} wins!')
             self.turn = (self.turn + 1) % 2
+
+    def draw_graphic_board(self, screen):
+        for row in range(Constants.ROWS):
+            for column in range(Constants.COLUMNS):
+                pygame.draw.rect(screen, Constants.BLUE, (column * 100, row * 100 + 100, 100, 100))
+                pygame.draw.circle(screen, Constants.BLACK, (column * 100 + 50, row * 100 + 100 + 50), Constants.RADIUS)
+
+    def start(self):
+        screen, font = init_pygame()
+        self.draw_graphic_board(screen)
+        pygame.display.update()
+        while not self.game_over:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    x, y = event.pos
+                    column = math.floor(x / 100)
+                    if self.is_valid_choice(column) and self.drop_token(column, self.tokens[self.turn]):
+                        print(f'{self.players[self.turn]} has won! Congratulations!!!')
+                        label = font.render(f"{self.players[self.turn]} wins!! Congratulations!", True, Constants.RED)
+                        screen.blit(label, (40, 10))
+                        self.game_over = True
+                    self.turn = (self.turn + 1) % 2
+        pygame.time.wait(5000)
+
+
+
 
 
 def main():
     game = ConnectFour()
-    game.start_game()
+    game.start()
+    # game.start_game()
+
+
+def init_pygame():
+    pygame.init()
+    font = pygame.font.SysFont("Monospace", 75)
+    unit_size = 100
+    width = Constants.COLUMNS * unit_size
+    height = (1 + Constants.ROWS) * unit_size
+    size = width, height
+    screen = pygame.display.set_mode(size)
+    pygame.display.set_caption('Connect Four')
+    return screen, font
 
 
 if __name__ == '__main__':

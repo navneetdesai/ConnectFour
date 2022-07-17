@@ -112,32 +112,32 @@ class Board:
         :return:
         """
         board = self.board
-        for c in range(column - 3, column + 1):
-            count = sum(0 <= c + d < Constants.COLUMNS and board[row][c + d] == token \
+        for col in range(column - 3, column + 1):
+            count = sum(0 <= col + d < Constants.COLUMNS and board[row][col + d] == token \
                         for d in range(4))
             if count == 4:
                 return True
 
-        for r in range(row - 3, row + 1):
-            count = sum(0 <= r + d < Constants.ROWS and board[r + d][column] == token \
+        for row_ in range(row - 3, row + 1):
+            count = sum(0 <= row_ + d < Constants.ROWS and board[row_ + d][column] == token \
                         for d in range(4))
             if count == 4:
                 return True
 
-        for r, c in zip(range(row - 3, row + 1), range(column - 3, column + 1)):
+        for row_, col in zip(range(row - 3, row + 1), range(column - 3, column + 1)):
             count = 0
-            for d in range(4):
-                if 0 <= r + d < Constants.ROWS and 0 <= c + d < Constants.ROWS \
-                        and board[r + d][c + d] == token:
+            for dist in range(4):
+                if 0 <= row_ + dist < Constants.ROWS and 0 <= col + dist < Constants.ROWS \
+                        and board[row_ + dist][col + dist] == token:
                     count += 1
                 if count == 4:
                     return True
 
-        for r, c in zip(range(row + 3, row - 1, -1), range(column - 3, column + 1)):
+        for row_, col in zip(range(row + 3, row - 1, -1), range(column - 3, column + 1)):
             count = 0
-            for d in range(4):
-                if 0 <= r - d < Constants.ROWS and 0 <= c + d < Constants.ROWS \
-                        and board[r - d][c + d] == token:
+            for dist in range(4):
+                if 0 <= row_ - dist < Constants.ROWS and 0 <= col + dist < Constants.ROWS \
+                        and board[row_ - dist][col + dist] == token:
                     count += 1
                 if count == 4:
                     return True
@@ -228,25 +228,32 @@ class ConnectFour:
         self.draw_graphic_board(screen)
         pygame.display.update()
         while not self.game_over:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    sys.exit()
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    x, y = event.pos
-                    column = math.floor(x / 100)
-                    if self.is_valid_choice(column) and \
-                            self.drop_token(column, self.tokens[self.turn]):
-                        print(f'{self.players[self.turn]} has won! Congratulations!!!')
-                        label = font.render(f"{self.players[self.turn]} wins!! Congratulations!",
-                                            True, Constants.RED)
-                        screen.blit(label, (40, 10))
-                        self.game_over = True
-                    self.turn = (self.turn + 1) % 2
-                self.draw_graphic_board(screen)
+            self.run_game_loop(font, screen)
         pygame.time.wait(Constants.WAIT)
+
+    def run_game_loop(self, font, screen):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                column, _ = event.pos
+                column = math.floor(column / 100)
+                if self.is_valid_choice(column) and \
+                        self.drop_token(column, self.tokens[self.turn]):
+                    print(f'{self.players[self.turn]} has won! Congratulations!!!')
+                    label = font.render(f"{self.players[self.turn]} wins!!!",
+                                        True, Constants.WHITE)
+                    screen.blit(label, (40, 10))
+                    self.game_over = True
+                self.turn = (self.turn + 1) % 2
+            self.draw_graphic_board(screen)
 
 
 def main():
+    """
+    Creates a ConnectFour instance and starts the game
+    :return:
+    """
     game = ConnectFour()
     game.start()
 
